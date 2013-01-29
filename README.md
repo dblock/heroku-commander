@@ -1,5 +1,5 @@
-Heroku::Commander [![Build Status](http://travis-ci.org/dblock/heroku-commander.png)](http://travis-ci.org/dblock/heroku-commander)
-==============
+Heroku::Commander [![Build Status](https://travis-ci.org/dblock/heroku-commander.png?branch=master)](https://travis-ci.org/dblock/heroku-commander)
+=================
 
 Control Heroku from Ruby via its `heroku` shell command.
 
