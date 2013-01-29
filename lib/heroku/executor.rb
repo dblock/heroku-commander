@@ -17,9 +17,9 @@ module Heroku
                 lines << line
               end
             end
-            Process.wait(pid)
           rescue Errno::EIO
-            raise Heroku::Commander::Errors::ClientEIOError.new
+          ensure
+            Process.wait(pid)
           end
         end
         check_exit_status! cmd, $?.exitstatus
