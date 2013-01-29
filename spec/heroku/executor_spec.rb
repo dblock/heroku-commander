@@ -10,18 +10,17 @@ describe Heroku::Executor do
     it { should raise_error Heroku::Commander::Errors::CommandError, /The command `executor_spec.rb` failed with exit status \d+./ }
   end
   context "command exists" do
-    subject { lambda { Heroku::Executor.run "ls" } }
+    subject { lambda { Heroku::Executor.run "ls -1" } }
     it { should_not raise_error }
     its(:call) { should include "Gemfile" }
   end
   context "line-by-line" do
     it "yields" do
       lines = []
-      Heroku::Executor.run "ls #{File.dirname(__FILE__)} -1" do |line|
+      Heroku::Executor.run "ls -1" do |line|
         lines << line
       end
-      lines.size.should > 0
-      lines.should include File.basename(__FILE__)
+      lines.should include "Gemfile"
     end
   end
 end
