@@ -17,10 +17,11 @@ describe Heroku::Executor do
   context "line-by-line" do
     it "yields" do
       lines = []
-      Heroku::Executor.run "ls -1" do |line|
+      Heroku::Executor.run "ls #{File.dirname(__FILE__)} -1" do |line|
         lines << line
       end
-      lines.should include "Gemfile"
+      lines.size.should > 0
+      lines.should include File.basename(__FILE__)
     end
   end
 end
