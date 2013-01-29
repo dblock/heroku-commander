@@ -3,6 +3,14 @@ Heroku::Commander [![Build Status](http://travis-ci.org/dblock/heroku-commander.
 
 Control Heroku from Ruby via its `heroku` shell command.
 
+Heroku Configuration
+--------------------
+
+``` ruby
+commander = Heroku::Commander.new({ :app => "heroku-commander" })
+commander.config # => a hash of all settings for the heroku-commander app
+```
+
 Contributing
 ------------
 

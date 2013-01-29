@@ -1,5 +1,5 @@
 module Heroku
-  module Commander
+  class Commander
     module Errors
       class Base < StandardError
 

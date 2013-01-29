@@ -13,8 +13,5 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/dblock/heroku-commander"
   s.licenses = [ "MIT" ]
   s.summary = "Control Heroku from Ruby via its `heroku` shell command."
-  s.add_dependency "heroku"
   s.add_dependency "i18n"
 end
-
-

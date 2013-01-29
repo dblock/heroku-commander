@@ -3,3 +3,15 @@ en:
     commander:
       errors:
         messages:
+          client_eio:
+            message: "Heroku client stopped sending output."
+            summary: "The heroku client stopped sending output before exiting."
+            resolution: "This is unexpected and represents a Heroku server error. Try again."
+          command_error:
+            message: "The command `%{cmd}` failed with exit status %{status}."
+            summary: "%{message}"
+            resolution: "Examine the command line and refer to the command documentation."
+          unexpected_output:
+            message: "The command `%{cmd}` returned unexpected output."
+            summary: "The output unexpectedly contained %{line}."
+            resolution: "This is unexpected and could represent a Heroku server error. Try again."
