@@ -19,18 +19,18 @@ module Heroku
       end
       check_exit_status! lines
       lines.shift # removes Running `...` attached to terminal... up, run.pid
-      lines.pop # remove rc: status
+      lines.pop # remove rc=status
       lines
     end
 
     protected
 
       def cmdline
-        [ "heroku", "run", "\"(#{command} 2>&1 ; echo rc: \\$?)\"", @app ? "--app #{@app}" : nil ].compact.join(" ")
+        [ "heroku", "run", "\"(#{command} 2>&1 ; echo rc=\\$?)\"", @app ? "--app #{@app}" : nil ].compact.join(" ")
       end
 
       def check_exit_status!(lines)
-        status = (lines.size > 0) && (match = lines[-1].match(/^rc: (\d+)$/)) ? match[1] : nil
+        status = (lines.size > 0) && (match = lines[-1].match(/^rc=(\d+)$/)) ? match[1] : nil
         raise Heroku::Commander::Errors::CommandError.new({
           :cmd => @command,
           :status => status,

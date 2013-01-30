@@ -48,8 +48,8 @@ describe Heroku::Commander do
         and_yield("Running `...` attached to terminal... up, run.xyz").
         and_yield("app").
         and_yield("bin").
-        and_yield("rc: 0").
-        and_return([ "Running `...` attached to terminal... up, run.xyz", "app", "bin", "rc: 0" ])
+        and_yield("rc=0").
+        and_return([ "Running `...` attached to terminal... up, run.xyz", "app", "bin", "rc=0" ])
       subject.run("ls -1").should == [ "app", "bin" ]
     end
   end
