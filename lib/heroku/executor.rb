@@ -9,7 +9,8 @@ module Heroku
           begin
             $stdout.sync = true
             r.sync = true
-            r.each do |line|
+            until r.eof? do
+              line = r.readline
               line.chomp!
               if block_given?
                 yield line
