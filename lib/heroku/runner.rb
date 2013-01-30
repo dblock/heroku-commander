@@ -1,7 +1,7 @@
 module Heroku
   class Runner
 
-    attr_accessor :app, :logger, :command
+    attr_accessor :app, :logger, :command, :pid
 
     def initialize(options = {})
       @app = options[:app]
@@ -12,6 +12,7 @@ module Heroku
 
     def run!(&block)
       lines = Heroku::Executor.run cmdline, { :logger => logger } do |line|
+        check_pid(line) unless @pid
         if block_given?
           yield line
         end
@@ -36,6 +37,14 @@ module Heroku
           :message => "The command #{@command} failed with exit status #{status}.",
           :lines => lines
         }) unless status && status == "0"
+      end
+
+      def check_pid(line)
+        if (match = line.match /attached to terminal... up, (run.\d+)$/)
+          @pid = match[1]
+        else
+          @pid = ''
+        end
       end
 
   end

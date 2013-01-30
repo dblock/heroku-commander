@@ -19,20 +19,21 @@ describe Heroku::Runner do
     context "run!" do
       it "runs the command" do
         Heroku::Executor.stub(:run).with(subject.send(:cmdline), { :logger => nil }).
-          and_yield("Running `...` attached to terminal... up, run.xyz").
+          and_yield("Running `...` attached to terminal... up, run.9783").
           and_yield("app").
           and_yield("bin").
           and_yield("rc: 0").
-          and_return([ "Running `...` attached to terminal... up, run.xyz", "app", "bin", "rc: 0" ])
+          and_return([ "Running `...` attached to terminal... up, run.9783", "app", "bin", "rc: 0" ])
         subject.run!.should == [ "app", "bin" ]
+        subject.pid.should == "run.9783"
       end
       it "raises an exception if the command fails" do
         Heroku::Executor.stub(:run).with(subject.send(:cmdline), { :logger => nil }).
-          and_yield("Running `...` attached to terminal... up, run.xyz").
+          and_yield("Running `...` attached to terminal... up, run.9783").
           and_yield("app").
           and_yield("bin").
           and_yield("rc: 0").
-          and_return([ "Running `...` attached to terminal... up, run.xyz", "app", "bin", "rc: 1" ])
+          and_return([ "Running `...` attached to terminal... up, run.9783", "app", "bin", "rc: 1" ])
         expect {
           subject.run!
         }.to raise_error Heroku::Commander::Errors::CommandError, /The command `ls -1` failed with exit status 1./
