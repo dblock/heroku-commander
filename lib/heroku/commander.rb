@@ -15,5 +15,11 @@ module Heroku
       end
     end
 
+    # Run a process synchronously
+    def run(command, &block)
+      runner = Heroku::Runner.new({ :app => app, :logger => logger, :command => command })
+      runner.run! &block
+    end
+
   end
 end

@@ -42,5 +42,16 @@ describe Heroku::Commander do
       end
     end
   end
+  context "run" do
+    it "runs the command" do
+      Heroku::Executor.stub(:run).
+        and_yield("Running `...` attached to terminal... up, run.xyz").
+        and_yield("app").
+        and_yield("bin").
+        and_yield("rc: 0").
+        and_return([ "Running `...` attached to terminal... up, run.xyz", "app", "bin", "rc: 0" ])
+      subject.run("ls -1").should == [ "app", "bin" ]
+    end
+  end
 end
 
