@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Heroku::Executor do
   context "missing argument" do
     subject { lambda { Heroku::Executor.run } }
-    it { should raise_error ArgumentError, /wrong number of arguments/ }
+    it { should raise_error ArgumentError }
   end
   context "command does not exist" do
     subject { lambda { Heroku::Executor.run "executor_spec.rb" } }

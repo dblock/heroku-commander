@@ -17,7 +17,7 @@ module Heroku
                 lines << line
               end
             end
-          rescue Errno::EIO
+          rescue Errno::EIO, IOError
           ensure
             Process.wait(pid)
           end
