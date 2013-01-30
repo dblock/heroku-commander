@@ -1,16 +1,18 @@
 module Heroku
   class Config < Hash
 
-    attr_accessor :app
+    attr_accessor :app, :logger
 
     def initialize(options = {})
-      @app = options[:app] if options
+      @app = options[:app]
+      @logger = options[:logger]
     end
 
     def reload!
       clear
       cmd = cmdline
-      Heroku::Executor.run cmd do |line|
+      Heroku::Executor.run cmd, { :logger => logger } do |line|
+        logger.debug "< #{line}" if logger
         parts = line.split "=", 2
         raise Heroku::Commander::Errors::UnexpectedOutputError.new({
           :cmd => cmd,

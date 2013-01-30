@@ -19,7 +19,7 @@ describe Heroku::Commander do
   end
   context "with a heroku configuration" do
     before :each do
-      Heroku::Executor.stub(:run).with("heroku config -s --app heroku-commander").
+      Heroku::Executor.stub(:run).with("heroku config -s --app heroku-commander", { :logger => nil }).
         and_yield("APP_NAME=heroku-commander").
         and_yield("RACK_ENV=staging")
     end
@@ -27,6 +27,19 @@ describe Heroku::Commander do
     context "config" do
       its(:size) { should == 2 }
       it { subject["APP_NAME"].should eq "heroku-commander" }
+    end
+  end
+  context "with logger" do
+    subject do
+      logger = Logger.new($stdout)
+      Heroku::Commander.new({ :logger => logger })
+    end
+    context "reload!" do
+      it "passes the logger" do
+        PTY.stub(:spawn)
+        subject.logger.should_receive(:debug).with("Running: heroku config -s")
+        subject.config
+      end
     end
   end
 end

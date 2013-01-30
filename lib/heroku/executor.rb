@@ -3,9 +3,12 @@ module Heroku
     class << self
 
       # Executes a command and yields output line-by-line.
-      def run(cmd, &block)
+      def run(cmd, options = {}, &block)
         lines = [] unless block_given?
+        logger = options[:logger]
+        logger.debug "Running: #{cmd}" if logger
         PTY.spawn(cmd) do |r, w, pid|
+          logger.debug "Started: #{pid}" if logger
           begin
             $stdout.sync = true
             r.sync = true
@@ -18,19 +21,24 @@ module Heroku
                 lines << line
               end
             end
-          rescue Errno::EIO, IOError
+          rescue Errno::EIO, IOError => e
+            logger.debug "Exception: #{e}" if logger
           ensure
+            logger.debug "Waiting: #{pid}" if logger
             Process.wait(pid)
           end
         end
         check_exit_status! cmd, $?.exitstatus
         lines ? lines.join("\n") : nil
-      rescue PTY::ChildExited
+      rescue PTY::ChildExited => e
+        logger.debug "Exception: #{e}" if logger
         check_exit_status! cmd, $!.status.exitstatus
         lines ? lines.join("\n") : nil
-      rescue Heroku::Commander::Errors::Base
+      rescue Heroku::Commander::Errors::Base => e
+        logger.debug "Exception: #{e}" if logger
         raise
       rescue Exception => e
+        logger.debug "Exception: #{e}" if logger
         raise Heroku::Commander::Errors::CommandError.new({
           :cmd => cmd,
           :status => $?.exitstatus,

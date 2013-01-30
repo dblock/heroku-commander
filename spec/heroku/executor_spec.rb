@@ -23,5 +23,12 @@ describe Heroku::Executor do
       lines.should include "Gemfile"
     end
   end
+  context "logger" do
+    it "logs command" do
+      logger = Logger.new($stdout)
+      logger.should_receive(:debug).exactly(4).times
+      Heroku::Executor.run "ls -1", { :logger => logger }
+    end
+  end
 end
 
