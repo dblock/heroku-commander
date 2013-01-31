@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'bundler'
+require 'bundler/gem_tasks'
 
 require File.expand_path('../lib/heroku/commander/version', __FILE__)
 
