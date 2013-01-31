@@ -1,5 +1,9 @@
 module Heroku
   class Executor
+
+    class Terminate < StandardError
+    end
+
     class << self
 
       # Executes a command and yields output line-by-line.
@@ -9,22 +13,27 @@ module Heroku
         logger.debug "Running: #{cmd}" if logger
         PTY.spawn(cmd) do |r, w, pid|
           logger.debug "Started: #{pid}" if logger
+          terminated = false
           begin
-            $stdout.sync = true
             r.sync = true
             until r.eof? do
               line = r.readline
               line.strip!
+              logger.debug "#{pid}: #{line}" if logger
               if block_given?
                 yield line
               end
               lines << line
             end
+          rescue Heroku::Executor::Terminate
+            logger.debug "Terminating #{pid}." if logger
+            Process.kill("TERM", pid)
+            terminated = true
           rescue Errno::EIO, IOError => e
             logger.debug "Exception: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
           ensure
             logger.debug "Waiting: #{pid}" if logger
-            Process.wait(pid)
+            Process.wait(pid) unless terminated
           end
         end
         check_exit_status! cmd, $?.exitstatus, lines
@@ -50,7 +59,7 @@ module Heroku
       private
 
         def check_exit_status!(cmd, status, lines = nil)
-          return if status == 0
+          return if ! status || status == 0
           raise Heroku::Commander::Errors::CommandError.new({
             :cmd => cmd,
             :status => status,

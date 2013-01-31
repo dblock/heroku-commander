@@ -24,17 +24,35 @@ commander = Heroku::Commander.new({ :app => "heroku-commander" })
 commander.config # => a hash of all settings for the heroku-commander app
 ```
 
-Heroku Run Command
-------------------
+Heroku Run
+----------
 
-Executes a command via `heroku run`, pipes and returns output lines. Unlike the heroku client, this also
-checks the process return code and raises a `Heroku::Commander::Errors::CommandError` if the latter is
-not zero, which makes this suitable for Rake tasks.
+Executes a command via `heroku run`, pipes and returns output lines. Unlike the heroku client, this also checks the process return code and raises a `Heroku::Commander::Errors::CommandError` if the latter is not zero, which makes this suitable for Rake tasks.
 
 ``` ruby
 commander = Heroku::Commander.new({ :app => "heroku-commander" })
 commander.run "uname -a" # => [ "Linux 2.6.32-348-ec2 #54-Ubuntu SMP x86_64 GNU" ]
 ```
+
+Heroku Detached Run
+-------------------
+
+Executes a command via `heroku run:detached`, spawns a `heroku logs --tail -p pid` for the process started on Heroku, pipes and returns output lines. This also checks the process return code and raises a `Heroku::Commander::Errors::CommandError` if the latter is not zero.
+
+``` ruby
+commander = Heroku::Commander.new({ :app => "heroku-commander" })
+commander.run("uname -a", { :detached => true }) # => [ "Linux 2.6.32-348-ec2 #54-Ubuntu SMP x86_64 GNU" ]
+```
+
+You can examine the output from `heroku logs --tail -p pid` line-by-line.
+
+``` ruby
+commander.run("ls -R", { :detached => true }).each do |line|
+  # each line from the output of the command
+end
+```
+
+For more information about Heroku one-off dynos see [this documentation](https://devcenter.heroku.com/articles/one-off-dynos).
 
 More Examples
 -------------

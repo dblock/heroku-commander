@@ -20,3 +20,7 @@ en:
             summary: "The instance of Heroku::Runner is missing a command argument."
             resolution: "Specify a command, for example:\n
             \_\_Heroku::Runner.new({ :command => 'ls -1' })"
+          already_running_error:
+            message: "The process is already running with pid %{pid}."
+            summary: "You can only run! or detach! an instance of Heroku::Runner once."
+            resolution: "This is a bug in your code."
