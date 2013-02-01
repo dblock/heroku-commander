@@ -30,23 +30,33 @@ module Heroku
             Process.kill("TERM", pid)
             terminated = true
           rescue Errno::EIO, IOError => e
-            logger.debug "Exception: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
+            logger.debug "#{e.class}: #{e.message}" if logger
+          rescue PTY::ChildExited => e
+            logger.debug "PTY::ChildExited: #{e.message}" if logger
+            terminted = true
+            raise e
           ensure
-            logger.debug "Waiting: #{pid}" if logger
-            Process.wait(pid) unless terminated
+            unless terminated
+              logger.debug "Waiting: #{pid}" if logger
+              Process.wait(pid) 
+            end
           end
         end
         check_exit_status! cmd, $?.exitstatus, lines
         lines
+      rescue Errno::ECHILD => e
+        logger.debug "#{e.class}: #{e.message}" if logger
+        check_exit_status! cmd, $?.exitstatus, lines
+        lines
       rescue PTY::ChildExited => e
-        logger.debug "Exception: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
+        logger.debug "#{e.class}: #{e.message}" if logger
         check_exit_status! cmd, $!.status.exitstatus, lines
         lines
       rescue Heroku::Commander::Errors::Base => e
-        logger.debug "Exception: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
+        logger.debug "Error: #{e.problem}" if logger
         raise
       rescue Exception => e
-        logger.debug "Exception: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
+        logger.debug "#{e.class}: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
         raise Heroku::Commander::Errors::CommandError.new({
           :cmd => cmd,
           :status => $?.exitstatus,
