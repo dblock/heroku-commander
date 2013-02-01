@@ -48,7 +48,7 @@ commander.run("uname -a", { :detached => true }) # => [ "Linux 2.6.32-348-ec2 #5
 You can examine the output from `heroku logs --tail -p pid` line-by-line.
 
 ``` ruby
-commander.run("ls -R", { :detached => true }).each do |line|
+commander.run("ls -R", { :detached => true }) do |line|
   # each line from the output of the command
 end
 ```
