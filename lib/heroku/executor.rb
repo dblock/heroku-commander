@@ -31,13 +31,13 @@ module Heroku
           rescue Errno::EIO, IOError => e
             logger.debug "#{e.class}: #{e.message}" if logger
           rescue PTY::ChildExited => e
-            logger.debug "PTY::ChildExited: #{e.message}" if logger
+            logger.debug "Terminated: #{pid}" if logger
             terminted = true
             raise e
           ensure
             unless terminated
               logger.debug "Waiting: #{pid}" if logger
-              Process.wait(pid) 
+              Process.wait(pid) rescue Errno::ECHILD
             end
           end
         end
