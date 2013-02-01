@@ -1,4 +1,4 @@
-![](https://github.com/dblock/heroku-commander/raw/master/assets/heroku-commander.png)
+![](assets/heroku-commander.png)
 Heroku::Commander [![Build Status](https://travis-ci.org/dblock/heroku-commander.png?branch=master)](https://travis-ci.org/dblock/heroku-commander)
 =================
 
@@ -58,7 +58,7 @@ For more information about Heroku one-off dynos see [this documentation](https:/
 More Examples
 -------------
 
-See [examples](https://github.com/dblock/heroku-commander/tree/master/examples) for more.
+See [examples](examples) for more.
 
 Contributing
 ------------
@@ -68,6 +68,6 @@ Fork the project. Make your feature addition or bug fix with tests. Send a pull 
 Copyright and License
 ---------------------
 
-MIT License, see [LICENSE](https://github.com/dblock/heroku-commander/raw/master/LICENSE.md) for details.
+MIT License, see [LICENSE](LICENSE.md) for details.
 
 (c) 2013 [Daniel Doubrovkine](http://github.com/dblock), [Frank Macreery](http://github.com/macreery), [Artsy Inc.](http://artsy.net)
