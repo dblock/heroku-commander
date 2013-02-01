@@ -85,6 +85,7 @@ module Heroku
       def tail!(&block)
         lines = []
         tail_cmdline = [ "heroku", "logs", "-p #{@pid}", "--tail", @app ? "--app #{@app}" : nil ].compact.join(" ")
+        previous_line = nil # delay by 1 to avoid rc=status line
         Heroku::Executor.run tail_cmdline, { :logger => logger } do |line|
           # remove any ANSI output
           line = line.gsub /\e\[(\d+)m/, ''
@@ -96,7 +97,8 @@ module Heroku
             terminate_executor!
           else
             if block_given?
-              yield line
+              yield previous_line if previous_line
+              previous_line = line
             end
             lines << line
           end
