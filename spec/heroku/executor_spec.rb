@@ -22,7 +22,7 @@ describe Heroku::Executor do
   context "line-by-line" do
     it "yields" do
       lines = []
-      Heroku::Executor.run "ls -1" do |line|
+      Heroku::Executor.run "ls -1", { :logger => logger } do |line|
         lines << line
       end
       lines.should include "Gemfile"
