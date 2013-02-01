@@ -1,3 +1,4 @@
+![](https://github.com/dblock/heroku-commander/raw/master/assets/heroku-commander.png)
 Heroku::Commander [![Build Status](https://travis-ci.org/dblock/heroku-commander.png?branch=master)](https://travis-ci.org/dblock/heroku-commander)
 =================
 
