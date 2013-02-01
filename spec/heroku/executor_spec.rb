@@ -22,6 +22,15 @@ describe Heroku::Executor do
       end
       lines.should include "Gemfile"
     end
+    it "doesn't yield nil lines" do
+      r = double(IO)
+      r.stub(:sync=)
+      r.stub(:readline).and_return("line1", nil, "rc=0")
+      r.stub(:eof?).and_return(false, false, false, true)
+      Process.stub(:wait)
+      PTY.stub(:spawn).and_yield(r, nil, 42)
+      Heroku::Executor.run("foobar").should == [ "line1", nil, "rc=0" ]
+    end
   end
   context "logger" do
     it "logs command" do
