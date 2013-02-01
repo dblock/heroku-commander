@@ -16,8 +16,7 @@ module Heroku
           terminated = false
           begin
             r.sync = true
-            until r.eof? do
-              line = r.readline
+            r.each do |line|
               line.strip! if line
               logger.debug "#{pid}: #{line}" if logger
               if block_given?
