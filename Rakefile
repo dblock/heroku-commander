@@ -1,8 +1,6 @@
 require 'rubygems'
 require 'bundler/gem_tasks'
 
-require File.expand_path('../lib/heroku/commander/version', __FILE__)
-
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e
