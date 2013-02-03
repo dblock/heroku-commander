@@ -28,15 +28,17 @@ module Heroku
       def run_attached!(&block)
         @pid = nil
         previous_line = nil # delay by 1 to avoid rc=status line
+        lines_until_pid = 0
         lines = Heroku::Executor.run cmdline, { :logger => logger } do |line|
           if ! @pid
             check_pid(line)
+            lines_until_pid += 1
           elsif block_given?
             yield previous_line if previous_line
             previous_line = line
           end
         end
-        lines.shift # remove Running `...` attached to terminal... up, run.xyz
+        lines.shift(lines_until_pid) # remove Running `...` attached to terminal... up, run.xyz
         check_exit_status! lines
         lines
       end
@@ -74,8 +76,6 @@ module Heroku
         if (match = line.match /up, (run.\d+)$/)
           @pid = match[1]
           logger.debug "Heroku pid #{@pid} up." if logger
-        else
-          @pid = ''
         end
       end
 

@@ -34,11 +34,12 @@ describe Heroku::Runner do
     context "run!" do
       before :each do
         Heroku::Executor.stub(:run).with(subject.send(:cmdline), { :logger => nil }).
-          and_yield("Running `...` attached to terminal... up, run.9783").
+          and_yield("Running `...`").
+          and_yield("attached to terminal... up, run.9783").
           and_yield("app").
           and_yield("bin").
           and_yield("rc= 0").
-          and_return([ "Running `...` attached to terminal... up, run.9783", "app", "bin", "rc=0" ])
+          and_return([ "Running `...`", "attached to terminal... up, run.9783", "app", "bin", "rc=0" ])
       end
       it "runs the command w/o a block" do
         subject.run!.should == [ "app", "bin" ]
