@@ -16,14 +16,7 @@ module Heroku
           terminated = false
           begin
             r.sync = true
-            r.each do |line|
-              line.strip! if line
-              logger.debug "#{pid}: #{line}" if logger
-              if block_given?
-                yield line
-              end
-              lines << line
-            end
+            read_from(r, pid, options, lines, &block)
           rescue Heroku::Executor::Terminate
             logger.debug "Terminating #{pid}." if logger
             Process.kill("TERM", pid)
@@ -32,7 +25,7 @@ module Heroku
             logger.debug "#{e.class}: #{e.message}" if logger
           rescue PTY::ChildExited => e
             logger.debug "Terminated: #{pid}" if logger
-            terminted = true
+            terminated = true
             raise e
           ensure
             unless terminated
@@ -66,6 +59,19 @@ module Heroku
       end
 
       private
+
+        def read_from(r, pid, options, lines, &block)
+          logger = options[:logger]
+          while ! r.eof do
+            line = r.readline
+            line.strip! if line
+            logger.debug "#{pid}: #{line}" if logger
+            if block_given?
+              yield line
+            end
+            lines << line
+          end
+        end
 
         def check_exit_status!(cmd, status, lines = nil)
           return if ! status || status == 0
