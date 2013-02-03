@@ -17,6 +17,20 @@ describe Heroku::Runner do
     its(:command) { should eq "ls -1" }
     its(:cmdline) { should eq "heroku run \"(ls -1 2>&1 ; echo rc=\\$?)\"" }
     its(:running?) { should be_false }
+    context "check_pid" do
+      it "parses up, run.1234" do
+        subject.send(:check_pid, "up, run.1234")
+        subject.pid.should == "run.1234"
+      end
+      it "parses attached to terminal ... up, run.1234" do
+        subject.send(:check_pid, "parses attached to terminal ... up, run.1234")
+        subject.pid.should == "run.1234"
+      end
+      it "parses detached ... up, run.1234" do
+        subject.send(:check_pid, "detached ... up, run.1234")
+        subject.pid.should == "run.1234"
+      end
+    end
     context "run!" do
       before :each do
         Heroku::Executor.stub(:run).with(subject.send(:cmdline), { :logger => nil }).

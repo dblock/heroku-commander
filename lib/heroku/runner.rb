@@ -71,12 +71,9 @@ module Heroku
       end
 
       def check_pid(line)
-        if (match = line.match /attached to terminal... up, (run.\d+)$/)
+        if (match = line.match /up, (run.\d+)$/)
           @pid = match[1]
           logger.debug "Heroku pid #{@pid} up." if logger
-        elsif (match = line.match /detached... up, (run.\d+)$/)
-          @pid = match[1]
-          logger.debug "Heroku detached pid #{@pid} up." if logger
         else
           @pid = ''
         end
