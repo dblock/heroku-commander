@@ -7,10 +7,22 @@ module Heroku
 
         def initialize(opts = {})
           @inner_exception = opts[:inner_exception]
-          super(compose_message("command_error", prepare_lines(opts)))
+          opts = prepare_lines(opts)
+          opts = prepare_status_message(opts)
+          super(compose_message("command_error", opts))
         end
 
         private
+
+          def prepare_status_message(opts)
+            result = opts.dup
+            if opts[:status] && opts[:status] != ""
+              result[:status_message] = " with exit status #{opts[:status]}"
+            else
+              result[:status_message] = " without reporting an exit status"
+            end
+            result
+          end
 
           def prepare_lines(opts)
             if opts[:lines] && opts[:lines].size > 4

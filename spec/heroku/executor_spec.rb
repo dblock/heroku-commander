@@ -9,6 +9,14 @@ describe Heroku::Executor do
     subject { lambda { Heroku::Executor.run "executor_spec.rb" } }
     it { should raise_error Heroku::Commander::Errors::CommandError, /The command `executor_spec.rb` failed with exit status \d+./ }
   end
+  context "command does not return exit status" do
+    before do
+      PTY.stub(:spawn).and_raise("foobar!")
+      Process::Status.any_instance.stub(:exitstatus).and_return(nil)
+    end
+    subject { lambda { Heroku::Executor.run "executor_spec.rb" } }
+    it { should raise_error Heroku::Commander::Errors::CommandError, /The command `executor_spec.rb` failed without reporting an exit status./ }
+  end
   context "command exists" do
     subject { lambda { Heroku::Executor.run "ls -1" } }
     it { should_not raise_error }

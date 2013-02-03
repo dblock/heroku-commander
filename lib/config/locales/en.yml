@@ -8,7 +8,7 @@ en:
             summary: "The heroku client stopped sending output before exiting."
             resolution: "This is unexpected and represents a Heroku server error. Try again."
           command_error:
-            message: "The command `%{cmd}` failed with exit status %{status}."
+            message: "The command `%{cmd}` failed%{status_message}."
             summary: "%{message}%{lines}"
             resolution: "Examine the command line and refer to the command documentation."
           unexpected_output:

@@ -22,15 +22,16 @@ module Heroku
             Process.kill("TERM", pid)
             terminated = true
           rescue Errno::EIO, IOError => e
-            logger.debug "#{e.class}: #{e.message}" if logger
+            logger.debug "#{e.class}: #{e.message}" if logger            
           rescue PTY::ChildExited => e
             logger.debug "Terminated: #{pid}" if logger
             terminated = true
             raise e
           ensure
             unless terminated
+              # wait for process
               logger.debug "Waiting: #{pid}" if logger
-              Process.wait(pid) rescue Errno::ECHILD
+              Process.wait(pid)
             end
           end
         end

@@ -1,3 +1,7 @@
+Next Release
+============
+* When the process exit status cannot be determined the error message says "The command failed without returning an exit status." - [@dblock](https://github.com/dblock).
+
 0.1.0 (01/31/2013)
 ==================
 
