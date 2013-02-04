@@ -7,7 +7,7 @@ describe Heroku::Executor do
   end
   context "command does not exist" do
     subject { lambda { Heroku::Executor.run "executor_spec.rb" } }
-    it { should raise_error Heroku::Commander::Errors::CommandError, /The command `executor_spec.rb` failed with exit status \d+./ }
+    it { should raise_error Heroku::Commander::Errors::CommandError, /The command `executor_spec.rb`(.*)failed with exit status \d+./ }
   end
   context "command does not return exit status" do
     before do
