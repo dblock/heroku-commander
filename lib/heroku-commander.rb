@@ -11,5 +11,5 @@ require 'heroku/commander/errors'
 require 'heroku/config'
 require 'heroku/commander'
 require 'heroku/executor'
+require 'heroku/process'
 require 'heroku/runner'
-

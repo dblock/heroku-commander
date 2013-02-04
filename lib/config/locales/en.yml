@@ -20,7 +20,16 @@ en:
             summary: "The instance of Heroku::Runner is missing a command argument."
             resolution: "Specify a command, for example:\n
             \_\_Heroku::Runner.new({ :command => 'ls -1' })"
+          missing_pid_error:
+            message: "Missing pid."
+            summary: "The instance of Heroku::Status is missing a pid argument."
+            resolution: "Specify a pid, for example:\n
+            \_\_Heroku::Status.new({ :pid => 'run.1234' })"
           already_running_error:
             message: "The process is already running with pid %{pid}."
             summary: "You can only run! or detach! an instance of Heroku::Runner once."
             resolution: "This is a bug in your code."
+          no_such_process:
+            message: "The process `%{pid}` does not exist."
+            summary: "The output of heroku ps did not list the requested process."
+            resolution: "Verify that the process is running."

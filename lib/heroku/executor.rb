@@ -21,7 +21,7 @@ module Heroku
             read_from(r, pid, options, lines, &block)
           rescue Heroku::Executor::Terminate
             logger.debug "Terminating #{pid}." if logger
-            Process.kill("TERM", pid)
+            ::Process.kill("TERM", pid)
             terminated = true
           rescue Errno::EIO, IOError => e
             logger.debug "#{e.class}: #{e.message}" if logger
@@ -33,7 +33,7 @@ module Heroku
             unless terminated
               # wait for process
               logger.debug "Waiting: #{pid}" if logger
-              Process.wait(pid)
+              ::Process.wait(pid)
             end
           end
         end

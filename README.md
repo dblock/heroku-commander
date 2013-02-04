@@ -25,6 +25,18 @@ commander = Heroku::Commander.new({ :app => "heroku-commander" })
 commander.config # => a hash of all settings for the heroku-commander app
 ```
 
+Heroku Processes
+----------------
+
+Returns or yields an array of processes by running `heroku ps`.
+
+``` ruby
+commander = Heroku::Commander.new({ :app => "heroku-commander" })
+commander.processes do |process|
+  # try process.pid and process.status
+end
+```
+
 Heroku Run
 ----------
 

@@ -77,5 +77,45 @@ describe Heroku::Commander do
       subject.run("ls -1", { :detached => true }).should == [ "bin", "app" ]
     end
   end
+  context "processes" do
+    context "without processes" do
+      before :each do
+        Heroku::Executor.stub(:run).with("heroku ps", { :logger => nil })
+      end
+      its(:processes) { should be_empty }
+    end
+    context "a web process" do
+      before :each do
+        Heroku::Executor.stub(:run).with("heroku ps", { :logger => nil }).
+          and_yield("=== web: `bundle exec ruby config.ru`").
+          and_yield("web.1: idle 2013/02/04 13:23:40 (~ 4h ago)")
+      end
+      its(:processes) { should_not be_empty }
+      it "has correct pid and status" do
+        processes = subject.processes
+        processes.count.should == 1
+        process = processes.first
+        process.pid.should eq "web.1"
+        process.status.should eq "idle"
+      end
+    end
+    context "a combination of one-off and web processes" do
+      before :each do
+        Heroku::Executor.stub(:run).with("heroku ps", { :logger => nil }).
+          and_yield("=== run: one-off processes").
+          and_yield("run.9174: up 2013/02/04 17:37:37 (~ 9m ago): `bundle exec rails console`").
+          and_yield(nil).
+          and_yield("").
+          and_yield("=== web: `bundle exec ruby config.ru`").
+          and_yield("web.1: up 2013/02/04 11:14:53 (~ 6h ago)").
+          and_yield("web.2: up 2013/02/04 11:14:17 (~ 6h ago)")
+      end
+      it "has correct pid and status" do
+        processes = subject.processes
+        processes.count.should == 3
+        processes.map(&:pid).should == [ "run.9174", "web.1", "web.2" ]
+      end
+    end
+  end
 end
 
