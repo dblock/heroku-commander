@@ -9,9 +9,11 @@ module Heroku
       # Executes a command and yields output line-by-line.
       def run(cmd, options = {}, &block)
         lines = []
+        running_pid = nil
         logger = options[:logger]
         logger.debug "Running: #{cmd}" if logger
         PTY.spawn(cmd) do |r, w, pid|
+          running_pid = pid
           logger.debug "Started: #{pid}" if logger
           terminated = false
           begin
@@ -22,7 +24,7 @@ module Heroku
             Process.kill("TERM", pid)
             terminated = true
           rescue Errno::EIO, IOError => e
-            logger.debug "#{e.class}: #{e.message}" if logger            
+            logger.debug "#{e.class}: #{e.message}" if logger
           rescue PTY::ChildExited => e
             logger.debug "Terminated: #{pid}" if logger
             terminated = true
@@ -35,15 +37,15 @@ module Heroku
             end
           end
         end
-        check_exit_status! cmd, $?.exitstatus, lines
+        check_exit_status! cmd, running_pid, $?.exitstatus, lines
         lines
       rescue Errno::ECHILD => e
         logger.debug "#{e.class}: #{e.message}" if logger
-        check_exit_status! cmd, $?.exitstatus, lines
+        check_exit_status! cmd, running_pid, $?.exitstatus, lines
         lines
       rescue PTY::ChildExited => e
         logger.debug "#{e.class}: #{e.message}" if logger
-        check_exit_status! cmd, $!.status.exitstatus, lines
+        check_exit_status! cmd, running_pid, $!.status.exitstatus, lines
         lines
       rescue Heroku::Commander::Errors::Base => e
         logger.debug "Error: #{e.problem}" if logger
@@ -52,6 +54,7 @@ module Heroku
         logger.debug "#{e.class}: #{e.respond_to?(:problem) ? e.problem : e.message}" if logger
         raise Heroku::Commander::Errors::CommandError.new({
           :cmd => cmd,
+          :pid => running_pid,
           :status => $?.exitstatus,
           :message => e.message,
           :inner_exception => e,
@@ -74,10 +77,11 @@ module Heroku
           end
         end
 
-        def check_exit_status!(cmd, status, lines = nil)
+        def check_exit_status!(cmd, pid, status, lines = nil)
           return if ! status || status == 0
           raise Heroku::Commander::Errors::CommandError.new({
             :cmd => cmd,
+            :pid => pid,
             :status => status,
             :message => "The command #{cmd} failed with exit status #{status}.",
             :lines => lines

@@ -7,21 +7,21 @@ module Heroku
 
         def initialize(opts = {})
           @inner_exception = opts[:inner_exception]
-          opts = prepare_lines(opts)
-          opts = prepare_status_message(opts)
+          opts = opts.dup
+          prepare_lines(opts)
+          prepare_status_message(opts)
+          prepare_pid(opts)
           super(compose_message("command_error", opts))
         end
 
         private
 
           def prepare_status_message(opts)
-            result = opts.dup
             if opts[:status] && opts[:status] != ""
-              result[:status_message] = " with exit status #{opts[:status]}"
+              opts[:status_message] = " with exit status #{opts[:status]}"
             else
-              result[:status_message] = " without reporting an exit status"
+              opts[:status_message] = " without reporting an exit status"
             end
-            result
           end
 
           def prepare_lines(opts)
@@ -29,17 +29,18 @@ module Heroku
               lines = opts[:lines][0..2]
               lines.push "... skipping #{opts[:lines].size - 4} line(s) ..."
               lines.concat opts[:lines][-2..-1]
-              result = opts.dup
-              result[:lines] = "\n\t" + lines.join("\n\t")
-              result
+              opts[:lines] = "\n\t" + lines.join("\n\t")
             elsif opts[:lines]
-              result = opts.dup
-              result[:lines] = "\n\t" + result[:lines].join("\n\t")
-              result
-            else
-              opts
+              opts[:lines] = "\n\t" + opts[:lines].join("\n\t")
             end
           end
+
+          def prepare_pid(opts)
+            if opts[:pid]
+              opts[:pid] = " (pid: #{opts[:pid]})"
+            end
+          end
+
       end
     end
   end

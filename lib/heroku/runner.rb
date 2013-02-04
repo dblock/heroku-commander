@@ -66,8 +66,9 @@ module Heroku
         lines.pop if status
         raise Heroku::Commander::Errors::CommandError.new({
           :cmd => @command,
+          :pid => @pid,
           :status => status,
-          :message => "The command #{@command} failed with exit status #{status}.",
+          :message => "The command #{@command} failed.",
           :lines => lines
         }) unless status && status == "0"
       end
