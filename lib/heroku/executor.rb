@@ -2,6 +2,12 @@ module Heroku
   class Executor
 
     class Terminate < StandardError
+
+      attr_accessor :timeout
+
+      def initialize(timeout = 0)
+        @timeout = timeout
+      end
     end
 
     class << self
@@ -19,9 +25,20 @@ module Heroku
           begin
             r.sync = true
             read_from(r, pid, options, lines, &block)
-          rescue Heroku::Executor::Terminate
-            logger.debug "Terminating #{pid}." if logger
-            ::Process.kill("TERM", pid)
+          rescue Heroku::Executor::Terminate => e
+            logger.debug "Waiting: #{e.timeout} second(s) to terminate #{pid}" if logger
+            # delay terminating of the process, usually to let the output flush
+            if timeout
+              Thread.new(pid, e.timeout) do |pid, timeout|
+                begin
+                  sleep(timeout) if timeout
+                  ::Process.kill("TERM", pid)
+                rescue
+                end
+              end
+            else
+              ::Process.kill("TERM", pid)
+            end
             terminated = true
           rescue Errno::EIO, IOError => e
             logger.debug "#{e.class}: #{e.message}" if logger

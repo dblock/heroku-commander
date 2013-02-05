@@ -17,15 +17,15 @@ module Heroku
 
     def run!(options = {}, &block)
       if options && options[:detached]
-        run_detached! &block
+        run_detached! options, &block
       else
-        run_attached! &block
+        run_attached! options, &block
       end
     end
 
     protected
 
-      def run_attached!(&block)
+      def run_attached!(options = {}, &block)
         @pid = nil
         previous_line = nil # delay by 1 to avoid rc=status line
         lines_until_pid = 0
@@ -43,14 +43,14 @@ module Heroku
         lines
       end
 
-      def run_detached!(&block)
+      def run_detached!(options = {}, &block)
         raise Heroku::Commander::Errors::AlreadyRunningError.new({ :pid => @pid }) if running?
         @running = true
         @pid = nil
         @tail = nil
         lines = Heroku::Executor.run cmdline({ :detached => true }), { :logger => logger } do |line|
           check_pid(line) unless @pid
-          @tail ||= tail!(&block) if @pid
+          @tail ||= tail!(options, &block) if @pid
         end
         check_exit_status! @tail || lines
         @running = false
@@ -80,10 +80,10 @@ module Heroku
         end
       end
 
-      def tail!(&block)
+      def tail!(options = {}, &block)
         lines = []
         tail_cmdline = [ "heroku", "logs", "-p #{@pid}", "--tail", @app ? "--app #{@app}" : nil ].compact.join(" ")
-        previous_line = nil # delay by 1 to avoid rc=status line
+        previous_line = nil # delay by 1 to avoid rc=status lines
         Heroku::Executor.run tail_cmdline, { :logger => logger } do |line|
           # remove any ANSI output
           line = line.gsub /\e\[(\d+)m/, ''
@@ -92,7 +92,7 @@ module Heroku
           if line.match(/Starting process with command/) || line.match(/State changed from \w+ to up/)
             # ignore
           elsif line.match(/State changed from \w+ to complete/) || line.match(/Process exited with status \d+/)
-            terminate_executor!
+            terminate_executor!(options[:tail_timeout] || 5)
           else
             if block_given?
               yield previous_line if previous_line
@@ -104,8 +104,8 @@ module Heroku
         lines
       end
 
-      def terminate_executor!
-        raise Heroku::Executor::Terminate
+      def terminate_executor!(timeout = 10)
+        raise Heroku::Executor::Terminate.new(timeout)
       end
 
   end

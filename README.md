@@ -65,6 +65,10 @@ commander.run("ls -R", { :detached => true }) do |line|
 end
 ```
 
+You can pass the following options along with `:detached`:
+
+* **tail_timeout**: number of seconds to suspend tail process termination expecting additional `heroku logs --tail` output (default is 5).
+
 For more information about Heroku one-off dynos see [this documentation](https://devcenter.heroku.com/articles/one-off-dynos).
 
 More Examples

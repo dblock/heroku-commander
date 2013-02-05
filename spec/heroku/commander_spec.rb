@@ -73,8 +73,8 @@ describe Heroku::Commander do
           "2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0",
           "2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete"
         ])
-      Heroku::Runner.any_instance.should_receive(:terminate_executor!).twice
-      subject.run("ls -1", { :detached => true }).should == [ "bin", "app" ]
+      Heroku::Runner.any_instance.should_receive(:terminate_executor!).with(42).twice
+      subject.run("ls -1", { :detached => true, :tail_timeout => 42 }).should == [ "bin", "app" ]
     end
   end
   context "processes" do
