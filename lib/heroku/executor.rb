@@ -27,18 +27,7 @@ module Heroku
             read_from(r, pid, options, lines, &block)
           rescue Heroku::Executor::Terminate => e
             logger.debug "Waiting: #{e.timeout} second(s) to terminate #{pid}" if logger
-            # delay terminating of the process, usually to let the output flush
-            if e.timeout
-              Thread.new(pid, e.timeout) do |pid, timeout|
-                begin
-                  sleep(timeout) if timeout
-                  ::Process.kill("TERM", pid)
-                rescue
-                end
-              end
-            else
-              ::Process.kill("TERM", pid)
-            end
+            terminate_process! pid, e.timeout
             terminated = true
           rescue Errno::EIO, IOError => e
             logger.debug "#{e.class}: #{e.message}" if logger
@@ -103,6 +92,21 @@ module Heroku
             :message => "The command #{cmd} failed with exit status #{status}.",
             :lines => lines
           })
+        end
+
+        def terminate_process!(pid, timeout)
+          if timeout
+            # Delay terminating of the process, usually to let the output flush.
+            Thread.new(pid, timeout) do |pid, timeout|
+              begin
+                sleep(timeout) if timeout
+                ::Process.kill("TERM", pid)
+              rescue
+              end
+            end
+          else
+            ::Process.kill("TERM", pid)
+          end
         end
 
     end
