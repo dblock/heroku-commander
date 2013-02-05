@@ -28,7 +28,7 @@ module Heroku
           rescue Heroku::Executor::Terminate => e
             logger.debug "Waiting: #{e.timeout} second(s) to terminate #{pid}" if logger
             # delay terminating of the process, usually to let the output flush
-            if timeout
+            if e.timeout
               Thread.new(pid, e.timeout) do |pid, timeout|
                 begin
                   sleep(timeout) if timeout
