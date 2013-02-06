@@ -85,10 +85,13 @@ module Heroku
         tail_cmdline = [ "heroku", "logs", "-p #{@pid}", "--tail", @app ? "--app #{@app}" : nil ].compact.join(" ")
         previous_line = nil # delay by 1 to avoid rc=status lines
         Heroku::Executor.run tail_cmdline, { :logger => logger } do |line|
+          line ||= ""
           # remove any ANSI output
           line = line.gsub /\e\[(\d+)m/, ''
           # lines are returned as [date/time] app/heroku[pid]: output
-          line = line.split("[#{@pid}]:")[-1].strip
+          if (line_after_prefix = line.split("[#{@pid}]:")[-1])
+            line = line_after_prefix.strip
+          end
           if line.match(/Starting process with command/) || line.match(/State changed from \w+ to up/)
             # ignore
           elsif line.match(/State changed from \w+ to complete/) || line.match(/Process exited with status \d+/)

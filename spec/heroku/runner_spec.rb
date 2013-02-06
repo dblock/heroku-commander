@@ -74,6 +74,7 @@ describe Heroku::Runner do
           and_yield("2013-01-31T01:39:30+00:00 heroku[run.8748]: Starting process with command `ls -1`").
           and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: bin").
           and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: app").
+          and_yield(nil).
           and_yield("2013-01-31T00:56:13+00:00 app[run.8748]: rc=0").
           and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0").
           and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete").
@@ -88,7 +89,7 @@ describe Heroku::Runner do
         Heroku::Runner.any_instance.should_receive(:terminate_executor!).twice
       end
       it "runs the command w/o a block" do
-        subject.run!({ :detached => true }).should == [ "bin", "app" ]
+        subject.run!({ :detached => true }).should == [ "bin", "app", "" ]
         subject.pid.should == "run.8748"
         subject.should_not be_running
       end
@@ -97,7 +98,7 @@ describe Heroku::Runner do
         subject.run!({ :detached => true }).each do |line|
           lines << line
         end
-        lines.should == [ "bin", "app" ]
+        lines.should == [ "bin", "app", "" ]
         subject.pid.should == "run.8748"
         subject.should_not be_running
       end
