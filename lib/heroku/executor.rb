@@ -30,7 +30,7 @@ module Heroku
             terminate_process! pid, e.timeout
             terminated = true
           rescue Errno::EIO, IOError => e
-            logger.debug "#{e.class}: #{e.message}" if logger
+            # ignore
           rescue PTY::ChildExited => e
             logger.debug "Terminated: #{pid}" if logger
             terminated = true
@@ -46,11 +46,9 @@ module Heroku
         check_exit_status! cmd, running_pid, $?.exitstatus, lines
         lines
       rescue Errno::ECHILD => e
-        logger.debug "#{e.class}: #{e.message}" if logger
         check_exit_status! cmd, running_pid, $?.exitstatus, lines
         lines
       rescue PTY::ChildExited => e
-        logger.debug "#{e.class}: #{e.message}" if logger
         check_exit_status! cmd, running_pid, $!.status.exitstatus, lines
         lines
       rescue Heroku::Commander::Errors::Base => e
