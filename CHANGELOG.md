@@ -1,3 +1,8 @@
+Next Release
+============
+* The `Heroku::Commander.run` with `detached: true` will now restart the tail process when aborted without having received a process exit message - [@dblock](https://github.com/dblock).
+* Added a `tail_retries` that defines the maximum number of tail restarts, default is 3 - [@dblock](https://github.com/dblock).
+
 0.2.0 (02/14/2013)
 ==================
 

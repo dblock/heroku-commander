@@ -103,6 +103,63 @@ describe Heroku::Runner do
         subject.should_not be_running
       end
     end
+    context "tail_retries" do
+      before :each do
+        Heroku::Executor.stub(:run).with(subject.send(:cmdline, { :detached => true }), { :logger => nil }).
+          and_yield("Running `ls -1` detached... up, run.8748").
+          and_yield("Use `heroku logs -p run.8748` to view the output.").
+          and_yield("rc=0").
+          and_return([ "Running `ls -1` detached... up, run.8748", "Use `heroku logs -p run.8748` to view the output.", "rc=0" ])
+        # first iteration
+        Heroku::Executor.should_receive(:run).with("heroku logs -p run.8748 --tail", { :logger => nil }).
+          and_yield("2013-01-31T01:39:30+00:00 heroku[run.8748]: Starting process with command `ls -1`").
+          and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: bin").
+          and_return([
+            "2013-01-31T01:39:30+00:00 heroku[run.8748]: Starting process with command `ls -1`",
+            "2013-01-31T01:39:31+00:00 app[run.8748]: bin",
+          ])
+        # second iteration
+        Heroku::Executor.should_receive(:run).with("heroku logs -p run.8748 --tail", { :logger => nil }).
+          and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: app").
+          and_yield(nil).
+          and_yield("2013-01-31T00:56:13+00:00 app[run.8748]: rc=0").
+          and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0").
+          and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete").
+          and_return([
+            "2013-01-31T01:39:31+00:00 app[run.8748]: app",
+            "2013-01-31T00:56:13+00:00 app[run.8748]: rc=0",
+            "2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0",
+            "2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete"
+          ])
+        Heroku::Runner.any_instance.should_receive(:terminate_executor!).twice
+      end
+      it "restarts tailer" do
+        lines = []
+        subject.run!({ :detached => true }).each do |line|
+          lines << line
+        end
+        lines.should == [ "bin", "app", "" ]
+        subject.pid.should == "run.8748"
+        subject.should_not be_running
+      end
+    end
+    context "options" do
+      before :each do
+        Heroku::Executor.stub(:run)
+          .and_yield("Running `ls -1` detached... up, run.8748")
+          .and_return([])
+      end
+      it "raises an error for an invalid tail_timeout option" do
+        expect {
+          subject.run!({ :detached => true, :tail_timeout => -1 })
+        }.to raise_error Heroku::Commander::Errors::InvalidOptionError, /Invalid option `tail_timeout`./
+      end
+      it "raises an error for an invalid tail_retries option" do
+        expect {
+          subject.run!({ :detached => true, :tail_retries => -1 })
+        }.to raise_error Heroku::Commander::Errors::InvalidOptionError, /Invalid option `tail_retries`./
+      end
+    end
   end
 end
 

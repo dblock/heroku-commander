@@ -33,3 +33,7 @@ en:
             message: "The process `%{pid}` does not exist."
             summary: "The output of heroku ps did not list the requested process."
             resolution: "Verify that the process is running."
+          invalid_option:
+            message: "Invalid option `%{name}`."
+            summary: "The value of the option is invalid: `%{value}`. Must be %{range}."
+            resolution: "Refer to the documentation for acceptable values."

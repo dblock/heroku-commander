@@ -84,24 +84,57 @@ module Heroku
         lines = []
         tail_cmdline = [ "heroku", "logs", "-p #{@pid}", "--tail", @app ? "--app #{@app}" : nil ].compact.join(" ")
         previous_line = nil # delay by 1 to avoid rc=status lines
-        Heroku::Executor.run tail_cmdline, { :logger => logger } do |line|
-          line ||= ""
-          # remove any ANSI output
-          line = line.gsub /\e\[(\d+)m/, ''
-          # lines are returned as [date/time] app/heroku[pid]: output
-          if (line_after_prefix = line.split("[#{@pid}]:")[-1])
-            line = line_after_prefix.strip
-          end
-          if line.match(/Starting process with command/) || line.match(/State changed from \w+ to up/)
-            # ignore
-          elsif line.match(/State changed from \w+ to complete/) || line.match(/Process exited with status \d+/)
-            terminate_executor!(options[:tail_timeout] || 5)
-          else
-            if block_given?
-              yield previous_line if previous_line
-              previous_line = line
+        process_completed = false
+        # tail retries
+        tail_retries_left = (options[:tail_retries] || 3).to_i
+        if tail_retries_left < 0
+          raise Heroku::Commander::Errors::InvalidOptionError.new({
+            :name => "tail_retries",
+            :value => options[:tail_retries],
+            :range => "greater or equal to 0"
+          })
+        end
+        # tail timeout
+        tail_timeout = (options[:tail_timeout] || 5).to_i
+        if tail_timeout < 0
+          raise Heroku::Commander::Errors::InvalidOptionError.new({
+            :name => "tail_timeout",
+            :value => options[:tail_timeout],
+            :range => "greater or equal to 0"
+          })
+        end
+        # tail
+        process_completed = false
+        while ! process_completed
+          tail_retries_left -= 1
+          begin
+            Heroku::Executor.run tail_cmdline, { :logger => logger } do |line|
+              line ||= ""
+              # remove any ANSI output
+              line = line.gsub /\e\[(\d+)m/, ''
+              # lines are returned as [date/time] app/heroku[pid]: output
+              if (line_after_prefix = line.split("[#{@pid}]:")[-1])
+                line = line_after_prefix.strip
+              end
+              if line.match(/Starting process with command/) || line.match(/State changed from \w+ to up/)
+                # ignore
+              elsif line.match(/State changed from \w+ to complete/) || line.match(/Process exited with status \d+/)
+                process_completed = true
+                terminate_executor!(options[:tail_timeout] || 5)
+              else
+                if block_given?
+                  yield previous_line if previous_line
+                  previous_line = line
+                end
+                lines << line
+              end
             end
-            lines << line
+          rescue
+            raise if tail_retries_left == 0
+          ensure
+            unless process_completed || tail_retries_left == 0
+              logger.debug "Restarting #{tail_cmdline}, #{tail_retries_left} #{tail_retries_left == 1 ? 'retry' : 'retries'} left." if logger
+            end
           end
         end
         lines
