@@ -130,9 +130,9 @@ module Heroku
               end
             end
           rescue
-            raise if tail_retries_left == 0
+            raise if tail_retries_left <= 0
           ensure
-            unless process_completed || tail_retries_left == 0
+            unless process_completed || tail_retries_left <= 0
               logger.debug "Restarting #{tail_cmdline}, #{tail_retries_left} #{tail_retries_left == 1 ? 'retry' : 'retries'} left." if logger
             end
           end
