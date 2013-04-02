@@ -145,9 +145,9 @@ describe Heroku::Runner do
     end
     context "options" do
       before :each do
-        Heroku::Executor.stub(:run)
-          .and_yield("Running `ls -1` detached... up, run.8748")
-          .and_return([])
+        Heroku::Executor.stub(:run).
+          and_yield("Running `ls -1` detached... up, run.8748").
+          and_return([])
       end
       it "raises an error for an invalid tail_timeout option" do
         expect {
