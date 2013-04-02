@@ -118,29 +118,49 @@ describe Heroku::Runner do
             "2013-01-31T01:39:30+00:00 heroku[run.8748]: Starting process with command `ls -1`",
             "2013-01-31T01:39:31+00:00 app[run.8748]: bin",
           ])
-        # second iteration
-        Heroku::Executor.should_receive(:run).with("heroku logs -p run.8748 --tail", { :logger => nil }).
-          and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: app").
-          and_yield(nil).
-          and_yield("2013-01-31T00:56:13+00:00 app[run.8748]: rc=0").
-          and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0").
-          and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete").
-          and_return([
-            "2013-01-31T01:39:31+00:00 app[run.8748]: app",
-            "2013-01-31T00:56:13+00:00 app[run.8748]: rc=0",
-            "2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0",
-            "2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete"
-          ])
-        Heroku::Runner.any_instance.should_receive(:terminate_executor!).twice
       end
-      it "restarts tailer" do
-        lines = []
-        subject.run!({ :detached => true }).each do |line|
-          lines << line
+      context "with a successful second iteration" do
+        before :each do
+          # second iteration
+          Heroku::Executor.should_receive(:run).with("heroku logs -p run.8748 --tail", { :logger => nil }).
+            and_yield("2013-01-31T01:39:31+00:00 app[run.8748]: app").
+            and_yield(nil).
+            and_yield("2013-01-31T00:56:13+00:00 app[run.8748]: rc=0").
+            and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0").
+            and_yield("2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete").
+            and_return([
+              "2013-01-31T01:39:31+00:00 app[run.8748]: app",
+              "2013-01-31T00:56:13+00:00 app[run.8748]: rc=0",
+              "2013-01-31T01:39:33+00:00 heroku[run.8748]: Process exited with status 0",
+              "2013-01-31T01:39:33+00:00 heroku[run.8748]: State changed from up to complete"
+            ])
+          Heroku::Runner.any_instance.should_receive(:terminate_executor!).twice
         end
-        lines.should == [ "bin", "app", "" ]
-        subject.pid.should == "run.8748"
-        subject.should_not be_running
+        it "restarts tailer" do
+          lines = []
+          subject.run!({ :detached => true }).each do |line|
+            lines << line
+          end
+          lines.should == [ "bin", "app", "" ]
+          subject.pid.should == "run.8748"
+          subject.should_not be_running
+        end
+      end
+      context "with a caught exception on second iteration" do
+        before :each do
+          # second iteration that raises a caught exception
+          Heroku::Executor.should_receive(:run).exactly(2).times.with("heroku logs -p run.8748 --tail", { :logger => nil }).
+            and_return(nil)
+        end
+        it "raises exception" do
+          lines = []
+          expect {
+            subject.run!({ :detached => true }).each do |line|
+              lines << line
+            end
+          }.to raise_error RuntimeError
+          subject.should_not be_running
+        end
       end
     end
     context "options" do
