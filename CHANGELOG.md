@@ -1,8 +1,9 @@
-Next Release
-============
+0.3.0 (04/15/2013)
+==================
 * Fixed an infinite loop in the tail restart method used by `Heroku::Commander.run` with `detached: true` - [@macreery](https://github.com/macreery).
 * The `Heroku::Commander.run` with `detached: true` will now restart the tail process when aborted without having received a process exit message - [@dblock](https://github.com/dblock).
 * Added a `tail_retries` that defines the maximum number of tail restarts, default is 3 - [@dblock](https://github.com/dblock).
+* Added a `size` option to `Heroku::Runner` and `Heroku::Commander.run`, supporting `2X` dynos - [@dblock](https://github.com/dblock).
 
 0.2.0 (02/14/2013)
 ==================

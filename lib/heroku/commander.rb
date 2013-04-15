@@ -34,7 +34,8 @@ module Heroku
 
     # Run a process synchronously
     def run(command, options = {}, &block)
-      runner = Heroku::Runner.new({ :app => app, :logger => logger, :command => command })
+      size = options.delete(:size) if options
+      runner = Heroku::Runner.new({ :app => app, :logger => logger, :command => command, size: size })
       runner.run!(options, &block)
     end
 

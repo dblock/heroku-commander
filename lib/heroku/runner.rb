@@ -1,13 +1,14 @@
 module Heroku
   class Runner
 
-    attr_accessor :app, :logger, :command
+    attr_accessor :app, :logger, :command, :size
     attr_reader :pid, :running, :tail
 
     def initialize(options = {})
       @app = options[:app]
       @logger = options[:logger]
       @command = options[:command]
+      @size = options[:size]
       raise Heroku::Commander::Errors::MissingCommandError unless @command
     end
 
@@ -58,7 +59,12 @@ module Heroku
       end
 
       def cmdline(options = {})
-        [ "heroku", options[:detached] ? "run:detached" : "run", "\"(#{command} 2>&1 ; echo rc=\\$?)\"", @app ? "--app #{@app}" : nil ].compact.join(" ")
+        [
+          "heroku", options[:detached] ? "run:detached" : "run",
+          @size ? "--size #{@size}" : nil,
+          "\"(#{command} 2>&1 ; echo rc=\\$?)\"",
+          @app ? "--app #{@app}" : nil
+        ].compact.join(" ")
       end
 
       def check_exit_status!(lines)

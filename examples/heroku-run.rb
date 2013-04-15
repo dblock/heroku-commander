@@ -7,7 +7,7 @@ logger = Logger.new($stdout)
 logger.level = Logger::DEBUG
 commander = Heroku::Commander.new({ :logger => logger })
 
-uname = commander.run "uname -a"
+uname = commander.run "uname -a", { :size => "2X" }
 logger.info "Heroku dyno is a #{uname.join('\n')}."
 
 files = []

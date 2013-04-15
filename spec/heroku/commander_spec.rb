@@ -76,6 +76,15 @@ describe Heroku::Commander do
       Heroku::Runner.any_instance.should_receive(:terminate_executor!).with(42).twice
       subject.run("ls -1", { :detached => true, :tail_timeout => 42 }).should == [ "bin", "app" ]
     end
+    it "passes size option" do
+      Heroku::Executor.stub(:run).with("heroku run --size 2X \"(ls -1 2>&1 ; echo rc=\\$?)\"", { :logger => nil }).
+        and_yield("Running `...` attached to terminal... up, run.1234").
+        and_yield("app").
+        and_yield("bin").
+        and_yield("rc=0").
+        and_return([ "Running `...` attached to terminal... up, run.1234", "app", "bin", "rc=0" ])
+      subject.run("ls -1", { size: "2X" }).should == [ "app", "bin" ]
+    end
   end
   context "processes" do
     context "without processes" do

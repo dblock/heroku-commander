@@ -47,6 +47,12 @@ commander = Heroku::Commander.new({ :app => "heroku-commander" })
 commander.run "uname -a" # => [ "Linux 2.6.32-348-ec2 #54-Ubuntu SMP x86_64 GNU" ]
 ```
 
+You can specify the dyno size with `size`.
+
+``` ruby
+commander.run "uname -a", { size: "2X" }
+```
+
 Heroku Detached Run
 -------------------
 
@@ -67,6 +73,7 @@ end
 
 You can pass the following options along with `:detached`:
 
+* **size**: dyno size, eg. `2X` for double-dynos.
 * **tail_timeout**: number of seconds to wait before terminating `heroku logs --tail`, expecting more output (defaults to 5).
 * **tail_retries**: number of times to restart the tail process on error (defaults to 3).
 
