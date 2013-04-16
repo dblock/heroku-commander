@@ -61,7 +61,7 @@ module Heroku
       def cmdline(options = {})
         [
           "heroku", options[:detached] ? "run:detached" : "run",
-          @size ? "--size #{@size}" : nil,
+          @size ? "--size=#{@size}" : nil,
           "\"(#{command} 2>&1 ; echo rc=\\$?)\"",
           @app ? "--app #{@app}" : nil
         ].compact.join(" ")
