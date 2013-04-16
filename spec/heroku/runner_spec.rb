@@ -185,6 +185,6 @@ describe Heroku::Runner do
     subject do
       Heroku::Runner.new({ :command => "ls -1", size: "2X" })
     end
-    its(:cmdline) { should eq "heroku run --size 2X \"(ls -1 2>&1 ; echo rc=\\$?)\"" }
+    its(:cmdline) { should eq "heroku run --size=2X \"(ls -1 2>&1 ; echo rc=\\$?)\"" }
   end
 end
