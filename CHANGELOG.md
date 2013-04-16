@@ -1,3 +1,7 @@
+0.3.1 (04/16/2013)
+==================
+* Fixed syntax error for heroku command-line, when specifying a `size` option - [@mzikherman](https://github.com/mzikherman).
+
 0.3.0 (04/15/2013)
 ==================
 * Fixed an infinite loop in the tail restart method used by `Heroku::Commander.run` with `detached: true` - [@macreery](https://github.com/macreery).
