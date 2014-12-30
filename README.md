@@ -1,6 +1,12 @@
 ![](assets/heroku-commander.png)
-Heroku::Commander [![Build Status](https://travis-ci.org/dblock/heroku-commander.png?branch=master)](https://travis-ci.org/dblock/heroku-commander)
+Heroku::Commander
 =================
+
+[![Gem Version](http://img.shields.io/gem/v/heroku-commander.svg)](http://badge.fury.io/rb/heroku-commander)
+[![Build Status](http://img.shields.io/travis/dblock/heroku-commander.svg)](https://travis-ci.org/dblock/heroku-commander)
+[![Dependency Status](https://gemnasium.com/dblock/heroku-commander.svg)](https://gemnasium.com/dblock/heroku-commander)
+[![Code Climate](https://codeclimate.com/github/dblock/heroku-commander.svg)](https://codeclimate.com/github/dblock/heroku-commander)
+
 
 Master the Heroku CLI from Ruby.
 
